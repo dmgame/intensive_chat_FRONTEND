@@ -36,7 +36,6 @@ export const firebaseResetPassword = async (email) => {
   }
 };
 
-
 export const getUserIdToken = async () => {
   try {
     const token = await firebase.auth().currentUser.getIdToken();

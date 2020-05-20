@@ -6,10 +6,11 @@ const { USER } = mutations;
 const userStore = {
   namespaced: true,
   state: {
-    user: null,
+    user: {},
   },
   getters: {
     user: ({ user }) => user,
+    fullName: ({ user }) => `${user.firstName || ''} ${user.lastName || ''}`,
   },
   mutations: {
     [USER](state, obg) {
@@ -18,21 +19,19 @@ const userStore = {
   },
   actions: {
     setUserState: {
-      handler({ commit }, user) {
-        // ! delete
-        commit(USER, user);
-        // *dispatch('getUser', user.email)
+      handler({ dispatch }, user) {
+        dispatch('getUser', user.email);
       },
       root: true,
     },
-    // async getUser({ commit }, email) {
-    //   try {
-    //     // *await axios.get('/users/${email}');
-    //     // *commit(USER, user);
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // },
+    async getUser({ commit }, email) {
+      try {
+        const res = await axios.get(`/users/${email}`);
+        commit(USER, res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    },
     async createUserInfo(context, data) {
       try {
         await axios.post('/users', data);
