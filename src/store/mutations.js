@@ -10,6 +10,7 @@ const mutations = {
   SELECT_CHAT_ID: 'SELECT_CHAT_ID',
   CURRENT_CHAT: 'CURRENT_CHAT',
   CURRENT_CHAT_MSGS: 'CURRENT_CHAT_MSGS',
+  NEW_MSG: 'NEW_MSG',
 };
 
 export default mutations;

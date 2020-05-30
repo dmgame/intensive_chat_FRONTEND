@@ -6,6 +6,7 @@ const {
   SELECT_CHAT_ID,
   CURRENT_CHAT,
   CURRENT_CHAT_MSGS,
+  NEW_MSG,
 } = mutations;
 
 
@@ -36,6 +37,9 @@ const chatsStore = {
     [CURRENT_CHAT_MSGS](state, arr) {
       state.currentChatMessages = arr;
     },
+    [NEW_MSG](state, msg) {
+      state.currentChatMessages.push(msg);
+    },
   },
   actions: {
     async getPublicChats({ commit }) {
@@ -56,7 +60,7 @@ const chatsStore = {
     },
     async getSelectedChatMsgs({ commit }, id) {
       try {
-        const res = await axios.get(`/messages/${id}`);
+        const res = await axios.get(`/messages/chat/${id}`);
         commit(CURRENT_CHAT_MSGS, res.data);
       } catch (err) {
         console.log(err);
@@ -67,6 +71,9 @@ const chatsStore = {
       commit(SELECT_CHAT_ID, id);
       dispatch('getSelectedChatMsgs', id);
       dispatch('getSelectedChat', id);
+    },
+    newMessage({ commit }, msg) {
+      commit(NEW_MSG, msg);
     },
   },
 };
