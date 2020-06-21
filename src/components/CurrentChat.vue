@@ -7,6 +7,7 @@
       <ChatMessages
         :messages="currentChatMessages"
         :current-user-id="user._id"
+        :is-typing="isTyping"
       />
       <ChatMessageForm
         :is-join="isUserJoinSelectedChat"
@@ -33,6 +34,10 @@ export default {
     ChatMessages,
     ChatMessageForm,
   },
+  data: () => ({
+    isTyping: false,
+    $typingTimeout: null,
+  }),
   computed: {
     ...mapGetters('chats', ['selectedChatId', 'currentChatMessages']),
     ...mapGetters('user', ['user', 'fullName']),
@@ -43,6 +48,17 @@ export default {
   methods: {
     ...mapActions('user', ['getUser']),
     ...mapActions('chats', ['newMessage']),
+    setTyping() {
+      if (this.$typingTimeout) {
+        clearTimeout(this.$typingTimeout);
+      }
+
+      this.isTyping = true;
+
+      this.$typingTimeout = setTimeout(() => {
+        this.isTyping = false;
+      }, 1500);
+    },
     onJoinChat() {
       this.$socket.emit(
         Emitters.JOIN_CHAT,
@@ -58,6 +74,7 @@ export default {
         Emitters.USER_TYPING,
         {
           chatId: this.selectedChatId,
+          userId: this.user._id,
         },
       );
     },
@@ -79,12 +96,16 @@ export default {
       }
     });
 
-    this.$socket.on(Listeners.USER_TYPING, ({ chatId }) => {
-      console.log(chatId);
+    this.$socket.on(Listeners.USER_TYPING, ({ chatId, userId }) => {
+      if (userId !== this.user._id && chatId === this.selectedChatId) {
+        this.setTyping();
+      }
     });
 
     this.$socket.on(Listeners.NEW_MESSAGE, (msg) => {
-      this.newMessage({ ...msg });
+      if (msg.chat === this.selectedChatId) {
+        this.newMessage({ ...msg });
+      }
     });
   },
 };
